@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <div :style='aaaaaaaaaa'></div>
+    </div>
+<script src="./parse.js"></script>
+<script>
+    // console.log(parse(`<div><a>xxxxxx</a></div>`))
+    var handler = new Tautologistics.NodeHtmlParser.HtmlBuilder(function (error, dom) {
+        if (error)
+            console.log(error)
+        else
+            console.log(dom)
+    });
+    console.log(handler)
+    var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
+    parser.parseComplete(document.body.innerHTML);
+</script>
+</body>
+</html>
