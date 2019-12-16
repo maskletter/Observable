@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"></div>
+<script src="./snabbdom.min.js"></script>
+<script src="./snabbdom-style.min.js"></script>
+<script src="./snabbdom-class.js"></script>
+<script src="./snabbdom-attributes.js"></script>
+<script src="./snabbdom-props.js"></script>
+<script src="./snabbdom-eventlisteners.js"></script>
+<script>
+    const { h } = snabbdom;
+    const number = ['一','二','三','四','五','六','七','八','九','十']
+    const data = ['小一','小三','小五','小二','小二'];
+    const regExp = new RegExp(`(${number.join('|')})`)
+    console.log(data.sort((a1,a2) => {
+        return number.indexOf(a1.match(regExp)[0]) - number.indexOf(a2.match(regExp)[0])
+    }))
+    var app = document.getElementById('app');
+    var patch = snabbdom.init([styleModule,ClassModule,AttributesModule,PropsModule, EventListenersModule]);
+    var newVnode = h('div#divId.red', {}, [h('p', { 
+        style: { color: 'blue' },
+         'on': {'click': clickFn
+        }, attrs:{ index: 222 } 
+    },'已改变')])
+    var vnode = h('div#divId.red', {}, [
+        h('p',{
+            style:{
+                color: 'red'
+            },
+            class:{
+                'active': true
+            }
+        },'2S后改变')]
+    )
+    vnode = patch(app, vnode);
+    setTimeout(function() {
+        vnode=patch(vnode, newVnode);
+    }, 2000)
+    function clickFn() {
+        console.log('click')
+    }
+
+</script>
+</body>
+</html>
