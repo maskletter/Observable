@@ -10,8 +10,8 @@
     <div id="app">
         {{ name }},
         <br>
-        <button @click.stop='button'>运行</button>
-        <div :style='aaaaaaaaaa'></div>
+        <button id="xxx" add = 'xxx' @click.stop='button'>运行</button>
+        <div :style='{background:background}'>22222</div>
         {{ age }}
     </div>
 <script src="../html-parse/parse.js"></script>
@@ -24,29 +24,89 @@
 <script>
 
     
-    const { h } = snabbdom;
-    var patch = snabbdom.init([styleModule,ClassModule,AttributesModule,PropsModule, EventListenersModule]);
-    function transVDom(dom){
-        console.log(dom)
-    }
-
 
 
     var attrType = {
         on: /^@/,
         bind: /^:/,
-        style: /^(style|:style)$/
+        style: /^style$/,
+        id: /^id$/,
+        class: /^class$/
     }
+    const { h } = snabbdom;
+    var app = document.getElementById('app');
+    var patch = snabbdom.init([styleModule,ClassModule,AttributesModule,PropsModule, EventListenersModule]);
+    const defualtRender = [];
+    const innerHTML = document.getElementById('app').innerHTML;
+    document.getElementById('app').innerHTML = ''
+    let vnode;
+    function readAttrs(data, $this){
+        if(!data) return {}
+        const attr = {
+            attrs:{},
+            on:{},
+            style:{},
+            class:{},
+        };
+        for(var i in data){
+            if(attrType.on.test(i)){
+                const key = i.replace('@','').split('.')
+                attr.on[key[0]] = function(e){
+                    if(key.indexOf('stop')) e.stopPropagation()
+                    $this[data[i]].call($this)
+                }
+            }else if(attrType.bind.test(i)){
+                attr[i.replace(':','')] = new Function("data", `
+                    const { ${Object.keys($this).join(',')} } = data;
+                    return ${data[i]}
+                `)($this)
+            }else{
+                attr.attrs[i] = data[i]
+            }
+        }
+        return attr
+    }
+    function transVDom(dom, data, render = []){
+        dom.forEach(v => {
+            if(v.type == 'text'){
+                render.push(v.data.replace(/{{(.+?)}}/, function(a,b){ 
+                    return new Function("data", `
+                        const { ${Object.keys(data).join(',')} } = data;
+                        return ${b}
+                    `)(data)
+                 }))
+            }else{
+                const children = []
+                if(v.children){
+                    transVDom(v.children, data, children)
+                }
+                const el = h(v.name, readAttrs(v.attributes, data), children)
+                render.push(el)
+            }   
+        })
+        return render
+    }
+  
     var handler = new Tautologistics.NodeHtmlParser.HtmlBuilder(function (error, dom) {
-        if (error)
-            console.log(error)
-        else
-            transVDom(dom)
+        if (error) throw error
+        const data = {
+            button(){
+                // alert('xxxxxxx')
+                console.log(this)
+            },
+            name: 'xxx',
+            age: 14,
+            background:'red'
+        }
+        vnode = patch(app, h('div',{},transVDom(dom, data)));
+        data.age = 15;
+        setTimeout(function() {
+            vnode=patch(vnode, h('div',{},transVDom(dom, data)));
+        }, 5000)
     });
     
     var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
-    console.log(parser.parseComplete(document.getElementById('app').innerHTML))
-    console.log(parser)
+    parser.parseComplete(innerHTML)
 
 </script>
 </body>
