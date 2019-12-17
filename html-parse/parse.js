@@ -690,7 +690,7 @@ IN THE SOFTWARE.
             if (!this._tagStack.last()) { //There are no parent elements
                 //If the element can be a container, add it to the tag stack and the top level list
                 if (element.type === Mode.Tag) {
-                    if (element.name.charAt(0) != "/") { //Ignore closing tags that obviously don't have an opening tag
+                    if (element.name.charAt(0) != "/") { //忽略明显没有开始标签的结束标签
                         node = this._copyElement(element);
                         this.dom.push(node);
                         if (!this.isEmptyTag(node)) { //Don't add tags to the tag stack that can't have children
@@ -707,13 +707,13 @@ IN THE SOFTWARE.
                 } else { //Otherwise just add to the top level list
                     this.dom.push(this._copyElement(element));
                 }
-            } else { //There are parent elements
-                //If the element can be a container, add it as a child of the element
-                //on top of the tag stack and then add it to the tag stack
+            } else { //有父元素
+                //如果元素可以是容器，则将其添加为元素的子元素
+                //在标签栈顶部，然后将其添加到标签栈
                 if (element.type === Mode.Tag) {
                     if (element.name.charAt(0) == "/") {
-                        //This is a closing tag, scan the tagStack to find the matching opening tag
-                        //and pop the stack up to the opening tag's parent
+                        //这是一个结束标记，请扫描tagStack以找到匹配的开始标记
+                        //然后将堆栈弹出到开始标记的父级
                         var baseName = this._options.caseSensitiveTags ?
                             element.name.substring(1)
                             :
@@ -729,7 +729,7 @@ IN THE SOFTWARE.
                             }
                         }
                     }
-                    else { //This is not a closing tag
+                    else { //这不是结束标签
                         parent = this._tagStack.last();
                         if (element.type === Mode.Attr) {
                             if (!parent.attributes) {
@@ -743,7 +743,7 @@ IN THE SOFTWARE.
                                 parent.children = [];
                             }
                             parent.children.push(node);
-                            if (!this.isEmptyTag(node)) { //Don't add tags to the tag stack that can't have children
+                            if (!this.isEmptyTag(node)) { //不要将不能有children的标签添加到标签堆栈中
                                 this._tagStack.push(node);
                             }
                             if (element.type === Mode.Tag) {
@@ -752,7 +752,7 @@ IN THE SOFTWARE.
                         }
                     }
                 }
-                else { //This is not a container element
+                else { //这不是容器元素
                     parent = this._tagStack.last();
                     if (element.type === Mode.Attr) {
                         if (!parent.attributes) {
@@ -785,200 +785,7 @@ IN THE SOFTWARE.
     }
     inherits(RssBuilder, HtmlBuilder);
     
-        RssBuilder.prototype.done = function RssBuilder$done () {
-            var feed = {};
-            var feedRoot;
     
-            var found = DomUtils.getElementsByTagName(function (value) { return(value == "rss" || value == "feed"); }, this.dom, false);
-            if (found.length) {
-                feedRoot = found[0];
-            }
-            if (feedRoot) {
-                if (feedRoot.name == "rss") {
-                    feed.type = "rss";
-                    feedRoot = feedRoot.children[0]; //<channel/>
-                    feed.id = "";
-                    try {
-                        feed.title = DomUtils.getElementsByTagName("title", feedRoot.children, false)[0].children[0].data;
-                    } catch (ex) { }
-                    try {
-                        feed.link = DomUtils.getElementsByTagName("link", feedRoot.children, false)[0].children[0].data;
-                    } catch (ex) { }
-                    try {
-                        feed.description = DomUtils.getElementsByTagName("description", feedRoot.children, false)[0].children[0].data;
-                    } catch (ex) { }
-                    try {
-                        feed.updated = new Date(DomUtils.getElementsByTagName("lastBuildDate", feedRoot.children, false)[0].children[0].data);
-                    } catch (ex) { }
-                    try {
-                        feed.author = DomUtils.getElementsByTagName("managingEditor", feedRoot.children, false)[0].children[0].data;
-                    } catch (ex) { }
-                    feed.items = [];
-                    DomUtils.getElementsByTagName("item", feedRoot.children).forEach(function (item, index, list) {
-                        var entry = {};
-                        try {
-                            entry.id = DomUtils.getElementsByTagName("guid", item.children, false)[0].children[0].data;
-                        } catch (ex) { }
-                        try {
-                            entry.title = DomUtils.getElementsByTagName("title", item.children, false)[0].children[0].data;
-                        } catch (ex) { }
-                        try {
-                            entry.link = DomUtils.getElementsByTagName("link", item.children, false)[0].children[0].data;
-                        } catch (ex) { }
-                        try {
-                            entry.description = DomUtils.getElementsByTagName("description", item.children, false)[0].children[0].data;
-                        } catch (ex) { }
-                        try {
-                            entry.pubDate = new Date(DomUtils.getElementsByTagName("pubDate", item.children, false)[0].children[0].data);
-                        } catch (ex) { }
-                        feed.items.push(entry);
-                    });
-                } else {
-                    feed.type = "atom";
-                    try {
-                        feed.id = DomUtils.getElementsByTagName("id", feedRoot.children, false)[0].children[0].data;
-                    } catch (ex) { }
-                    try {
-                        feed.title = DomUtils.getElementsByTagName("title", feedRoot.children, false)[0].children[0].data;
-                    } catch (ex) { }
-                    try {
-                        feed.link = DomUtils.getElementsByTagName("link", feedRoot.children, false)[0].attributes.href;
-                    } catch (ex) { }
-                    try {
-                        feed.description = DomUtils.getElementsByTagName("subtitle", feedRoot.children, false)[0].children[0].data;
-                    } catch (ex) { }
-                    try {
-                        feed.updated = new Date(DomUtils.getElementsByTagName("updated", feedRoot.children, false)[0].children[0].data);
-                    } catch (ex) { }
-                    try {
-                        feed.author = DomUtils.getElementsByTagName("email", feedRoot.children, true)[0].children[0].data;
-                    } catch (ex) { }
-                    feed.items = [];
-                    DomUtils.getElementsByTagName("entry", feedRoot.children).forEach(function (item, index, list) {
-                        var entry = {};
-                        try {
-                            entry.id = DomUtils.getElementsByTagName("id", item.children, false)[0].children[0].data;
-                        } catch (ex) { }
-                        try {
-                            entry.title = DomUtils.getElementsByTagName("title", item.children, false)[0].children[0].data;
-                        } catch (ex) { }
-                        try {
-                            entry.link = DomUtils.getElementsByTagName("link", item.children, false)[0].attributes.href;
-                        } catch (ex) { }
-                        try {
-                            entry.description = DomUtils.getElementsByTagName("summary", item.children, false)[0].children[0].data;
-                        } catch (ex) { }
-                        try {
-                            entry.pubDate = new Date(DomUtils.getElementsByTagName("updated", item.children, false)[0].children[0].data);
-                        } catch (ex) { }
-                        feed.items.push(entry);
-                    });
-                }
-    
-                this.dom = feed;
-            }
-            RssBuilder.super_.prototype.done.call(this);
-        };
-    
-        var DomUtils = {
-              testElement: function DomUtils$testElement (options, element) {
-                if (!element) {
-                    return false;
-                }
-    
-                for (var key in options) {
-                    if (!options.hasOwnProperty(key)) {
-                        continue;
-                    }
-                    if (key == "tag_name") {
-                        if (element.type !== Mode.Tag) {
-                            return false;
-                        }
-                        if (!options["tag_name"](element.name)) {
-                            return false;
-                        }
-                    } else if (key == "tag_type") {
-                        if (!options["tag_type"](element.type)) {
-                            return false;
-                        }
-                    } else if (key == "tag_contains") {
-                        if (element.type !== Mode.Text && element.type !== Mode.Comment && element.type !== Mode.CData) {
-                            return false;
-                        }
-                        if (!options["tag_contains"](element.data)) {
-                            return false;
-                        }
-                    } else {
-                        if (!element.attributes || !options[key](element.attributes[key])) {
-                            return false;
-                        }
-                    }
-                }
-    
-                return true;
-            }
-    
-            , getElements: function DomUtils$getElements (options, currentElement, recurse, limit) {
-                recurse = (recurse === undefined || recurse === null) || !!recurse;
-                limit = isNaN(parseInt(limit)) ? -1 : parseInt(limit);
-    
-                if (!currentElement) {
-                    return([]);
-                }
-    
-                var found = [];
-                var elementList;
-    
-                function getTest (checkVal) {
-                    return function (value) {
-                        return(value == checkVal);
-                    };
-                }
-                for (var key in options) {
-                    if ((typeof options[key]) != "function") {
-                        options[key] = getTest(options[key]);
-                    }
-                }
-    
-                if (DomUtils.testElement(options, currentElement)) {
-                    found.push(currentElement);
-                }
-    
-                if (limit >= 0 && found.length >= limit) {
-                    return(found);
-                }
-    
-                if (recurse && currentElement.children) {
-                    elementList = currentElement.children;
-                } else if (currentElement instanceof Array) {
-                    elementList = currentElement;
-                } else {
-                    return(found);
-                }
-    
-                for (var i = 0; i < elementList.length; i++) {
-                    found = found.concat(DomUtils.getElements(options, elementList[i], recurse, limit));
-                    if (limit >= 0 && found.length >= limit) {
-                        break;
-                    }
-                }
-    
-                return(found);
-            }
-    
-            , getElementById: function DomUtils$getElementById (id, currentElement, recurse) {
-                var result = DomUtils.getElements({ id: id }, currentElement, recurse, 1);
-                return(result.length ? result[0] : null);
-            }
-    
-            , getElementsByTagName: function DomUtils$getElementsByTagName (name, currentElement, recurse, limit) {
-                return(DomUtils.getElements({ tag_name: name }, currentElement, recurse, limit));
-            }
-    
-            , getElementsByTagType: function DomUtils$getElementsByTagType (type, currentElement, recurse, limit) {
-                return(DomUtils.getElements({ tag_type: type }, currentElement, recurse, limit));
-            }
-        };
     
     exports.Parser = Parser;
     
@@ -988,6 +795,5 @@ IN THE SOFTWARE.
     
     exports.ElementType = Mode;
     
-    exports.DomUtils = DomUtils;
     
     })();

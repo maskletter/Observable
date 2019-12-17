@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        {{ name }},
+        <br>
+        <button @click.stop='button'>运行</button>
+        <div :style='aaaaaaaaaa'></div>
+        {{ age }}
+    </div>
+<script src="../html-parse/parse.js"></script>
+<script src="../snabbdom/snabbdom.min.js"></script>
+<script src="../snabbdom/snabbdom-style.min.js"></script>
+<script src="../snabbdom/snabbdom-class.js"></script>
+<script src="../snabbdom/snabbdom-attributes.js"></script>
+<script src="../snabbdom/snabbdom-props.js"></script>
+<script src="../snabbdom/snabbdom-eventlisteners.js"></script>
+<script>
+
+    
+    const { h } = snabbdom;
+    var patch = snabbdom.init([styleModule,ClassModule,AttributesModule,PropsModule, EventListenersModule]);
+    function transVDom(dom){
+        console.log(dom)
+    }
+
+
+
+    var attrType = {
+        on: /^@/,
+        bind: /^:/,
+        style: /^(style|:style)$/
+    }
+    var handler = new Tautologistics.NodeHtmlParser.HtmlBuilder(function (error, dom) {
+        if (error)
+            console.log(error)
+        else
+            transVDom(dom)
+    });
+    
+    var parser = new Tautologistics.NodeHtmlParser.Parser(handler);
+    console.log(parser.parseComplete(document.getElementById('app').innerHTML))
+    console.log(parser)
+
+</script>
+</body>
+</html>
