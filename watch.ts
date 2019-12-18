@@ -9,10 +9,10 @@ namespace Observable{
         set?: Function
     }
 
-    export const formatPath = (path: any[]): string => {
+    export const formatPath = (path: Array<string|number>): string => {
         let str = ''
         path.forEach(v => {
-          if (isNaN(v)){
+          if (isNaN(<number>v)){
             str += '.'+v
           }else{
             str += '['+v+']'
@@ -27,7 +27,7 @@ namespace Observable{
     }
 
     export const createObject = function(...argv: any[]){
-        
+        var GlobalObject = (window as any).Object;
         const [data,{ path, event } ]= argv
         const value = {};
         var Object = function() {
@@ -36,21 +36,28 @@ namespace Observable{
                 this.set(i, data[i])
             }
         };
-        Object.prototype.set = function(key, val){
-            if(typeof val == 'object'){
-                val= createData(val, path, key, event)
+        GlobalObject.defineProperty(Object.prototype, 'set', {
+            value:function(key, val){
+                if(typeof val == 'object'){
+                    val= createData(val, path, key, event)
+                }
+                value[key] = val
+                defineProperty(this, key, this.__obs.value, event, path.concat(key))
             }
-            value[key] = val
-            defineProperty(this, key, this.__obs.value, event, path.concat(key))
-        }
-        Object.prototype.delete = function(key){
-            delete this[key]
-            delete value[key]
-        }
-        Object.prototype.__obs = {
-        	path: path,
-        	value: value
-        }
+        })
+        GlobalObject.defineProperty(Object.prototype, 'delete', {
+            value:function(key){
+                delete this[key]
+                delete value[key]
+            }
+        })
+        GlobalObject.defineProperty(Object.prototype, '__obs', {
+            value: {
+                path: path,
+                value: value
+            }
+        })
+       
         return new Object()
     }
     export const createArray = function(...argv: any[]){
@@ -148,11 +155,11 @@ namespace Observable{
 
     function defineProperty(aims, key, data, event: WatchCallbak, path: string[] ){
     	Object.defineProperty(aims, key, {
-            enumerable: false,
-            configurable: true,
+            //是否可以被枚举
+            // enumerable: false,
+            // configurable: true,
     		get(){
                 event.get && event.get(path)
-                // console.log(data,key)
     			return data[key]
     		},
     		set(val){
@@ -164,6 +171,17 @@ namespace Observable{
 
     export const create = function(this:any,data: any, event: WatchCallbak = {}, path: string[] = []){
         const aims = this.libName == Observable.libName && this.version == Observable.version? {...data} : this;
+        Object.defineProperty(aims, 'set', {
+            enumerable: false,
+            value(key, val){
+                console.log(222)
+                if(typeof val == 'object'){
+                    val= createData(val, [], key, event)
+                }
+                aims[key] = val
+                defineProperty(this, key, this.__obs.value, event, path.concat(key))
+            }
+        })
     	objectRecursive(aims, data, event, path)
         return aims
     }
@@ -210,4 +228,7 @@ const watch = Observable.create(data, {
 //         console.log(val, path)
 //     }
 // })
+for(var i in watch){
+    console.log(i)
+}
 console.log(watch)

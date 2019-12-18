@@ -34,6 +34,7 @@ var Observable;
         for (var _i = 0; _i < arguments.length; _i++) {
             argv[_i] = arguments[_i];
         }
+        var GlobalObject = window.Object;
         var data = argv[0], _a = argv[1], path = _a.path, event = _a.event;
         var value = {};
         var Object = function () {
@@ -43,21 +44,27 @@ var Observable;
                 this.set(i, data[i]);
             }
         };
-        Object.prototype.set = function (key, val) {
-            if (typeof val == 'object') {
-                val = createData(val, path, key, event);
+        GlobalObject.defineProperty(Object.prototype, 'set', {
+            value: function (key, val) {
+                if (typeof val == 'object') {
+                    val = createData(val, path, key, event);
+                }
+                value[key] = val;
+                defineProperty(this, key, this.__obs.value, event, path.concat(key));
             }
-            value[key] = val;
-            defineProperty(this, key, this.__obs.value, event, path.concat(key));
-        };
-        Object.prototype["delete"] = function (key) {
-            delete this[key];
-            delete value[key];
-        };
-        Object.prototype.__obs = {
-            path: path,
-            value: value
-        };
+        });
+        GlobalObject.defineProperty(Object.prototype, 'delete', {
+            value: function (key) {
+                delete this[key];
+                delete value[key];
+            }
+        });
+        GlobalObject.defineProperty(Object.prototype, '__obs', {
+            value: {
+                path: path,
+                value: value
+            }
+        });
         return new Object();
     };
     Observable.createArray = function () {
@@ -146,22 +153,22 @@ var Observable;
         if (typeof data != 'object') {
             throw "请传入object对象";
         }
-        for (var i in data) {
-            if (data.hasOwnProperty && !data.hasOwnProperty(i))
+        for (var i_1 in data) {
+            if (data.hasOwnProperty && !data.hasOwnProperty(i_1))
                 continue;
-            if (typeof data[i] == 'object') {
-                data[i] = createData(data[i], path, i, event);
+            if (typeof data[i_1] == 'object') {
+                data[i_1] = createData(data[i_1], path, i_1, event);
             }
-            defineProperty(aims, i, data.__obs || data, event, path.concat([i]));
+            defineProperty(aims, i_1, data.__obs || data, event, path.concat([i_1]));
         }
     }
     function defineProperty(aims, key, data, event, path) {
         Object.defineProperty(aims, key, {
-            enumerable: false,
-            configurable: true,
+            //是否可以被枚举
+            // enumerable: false,
+            // configurable: true,
             get: function () {
                 event.get && event.get(path);
-                // console.log(data,key)
                 return data[key];
             },
             set: function (val) {
@@ -174,6 +181,17 @@ var Observable;
         if (event === void 0) { event = {}; }
         if (path === void 0) { path = []; }
         var aims = this.libName == Observable.libName && this.version == Observable.version ? __assign({}, data) : this;
+        Object.defineProperty(aims, 'set', {
+            enumerable: false,
+            value: function (key, val) {
+                console.log(222);
+                if (typeof val == 'object') {
+                    val = createData(val, [], key, event);
+                }
+                aims[key] = val;
+                defineProperty(this, key, this.__obs.value, event, path.concat(key));
+            }
+        });
         objectRecursive(aims, data, event, path);
         return aims;
     };
@@ -215,4 +233,7 @@ var watch = Observable.create(data, {
 //         console.log(val, path)
 //     }
 // })
+for (var i in watch) {
+    console.log(i);
+}
 console.log(watch);

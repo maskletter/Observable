@@ -771,13 +771,6 @@ IN THE SOFTWARE.
         };
     
     
-        //**Private**//
-        //Properties//
-        HtmlBuilder.prototype._options = null; //Builder options for how to behave
-        HtmlBuilder.prototype._callback = null; //Callback to respond to when parsing done
-        HtmlBuilder.prototype._done = false; //Flag indicating whether builder has been notified of parsing completed
-        HtmlBuilder.prototype._tagStack = null; //List of parents to the currently element being processed
-        //Methods//
     
     
     function RssBuilder (callback) {
