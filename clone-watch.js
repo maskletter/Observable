@@ -1,9 +1,9 @@
-var Observable2;
-(function (Observable2) {
+var Observable;
+(function (Observable) {
     var GlobalArray = window.Array;
     var GlobalObject = window.Object;
-    Observable2.version = 0.01;
-    Observable2.libName = 'Observable';
+    Observable.version = 0.01;
+    Observable.libName = 'Observable';
     /**
      * 判断赋的值是否为object对象，如果是object，则需要进行进一步监听object内的对象
      * @param val 传进的值
@@ -26,7 +26,7 @@ var Observable2;
      * @param key
      * @param val
      */
-    Observable2.forbidEnumerable = function (data, key, value) {
+    Observable.forbidEnumerable = function (data, key, value) {
         GlobalObject.defineProperty(data, key, { value: value });
     };
     /**
@@ -45,34 +45,34 @@ var Observable2;
             data.forEach(function (v) { return _this.push(v); });
         }
         Array.prototype = [];
-        Observable2.forbidEnumerable(Array.prototype, 'constructor', GlobalArray);
-        Observable2.forbidEnumerable(Array.prototype, '__obs', __obs);
-        Observable2.forbidEnumerable(Array.prototype, 'push', function (val) {
+        Observable.forbidEnumerable(Array.prototype, 'constructor', GlobalArray);
+        Observable.forbidEnumerable(Array.prototype, '__obs', __obs);
+        Observable.forbidEnumerable(Array.prototype, 'push', function (val) {
             var key = __obs.value.length;
             __obs.value[key] = createNewWatch(val, key, __obs);
             GlobalArray.prototype.push.call(this, void 0);
             defineProperty(this, key);
             return key + 1;
         });
-        Observable2.forbidEnumerable(Array.prototype, 'reverse', function (val) {
+        Observable.forbidEnumerable(Array.prototype, 'reverse', function (val) {
             return __obs.value.reverse() && this;
         });
-        Observable2.forbidEnumerable(Array.prototype, 'pop', function () {
+        Observable.forbidEnumerable(Array.prototype, 'pop', function () {
             GlobalArray.prototype.pop.call(this);
             return __obs.value.pop();
         });
-        Observable2.forbidEnumerable(Array.prototype, 'unshift', function (val) {
+        Observable.forbidEnumerable(Array.prototype, 'unshift', function (val) {
             var key = __obs.value.length;
             __obs.value.unshift(createNewWatch(val, key, __obs));
             GlobalArray.prototype.push.call(this, void 0);
             defineProperty(this, key);
             return key + 1;
         });
-        Observable2.forbidEnumerable(Array.prototype, 'shift', function () {
+        Observable.forbidEnumerable(Array.prototype, 'shift', function () {
             GlobalArray.prototype.pop.call(this);
             return __obs.value.shift() && this;
         });
-        Observable2.forbidEnumerable(Array.prototype, 'splice', function (start, end, val) {
+        Observable.forbidEnumerable(Array.prototype, 'splice', function (start, end, val) {
             var length = __obs.value.length;
             var newValue = __obs.value.slice();
             var result;
@@ -110,11 +110,11 @@ var Observable2;
                 this.set(key, data[key]);
             }
         }
-        Observable2.forbidEnumerable(Object.prototype, 'set', function (key, value) {
-            data[key] = createNewWatch(data[key], key, __obs);
+        Observable.forbidEnumerable(Object.prototype, 'set', function (key, value) {
+            data[key] = createNewWatch(value, key, __obs);
             defineProperty(this, key);
         });
-        Observable2.forbidEnumerable(Object.prototype, '__obs', __obs);
+        Observable.forbidEnumerable(Object.prototype, '__obs', __obs);
         return new Object();
     };
     /**创建程序监听 */
@@ -143,12 +143,12 @@ var Observable2;
      * @param data      传入的数据
      * @param event     传入的监听回调
      */
-    Observable2.create = function (data, event) {
+    Observable.create = function (data, event) {
         if (event === void 0) { event = {}; }
         var path = [];
         return Object(data, path, event);
     };
-})(Observable2 || (Observable2 = {}));
+})(Observable || (Observable = {}));
 var data1 = {
     name: "tom",
     age: 14,
@@ -158,7 +158,11 @@ var data1 = {
         "name3": "王五",
         "name4": "赵六"
     },
-    month: ['一', "二", "三", "四", "五"]
+    month: ['一', "二", "三", "四", "五", {
+            name: 'tom',
+            age: 14,
+            school: ['一中', '二中']
+        },]
 };
 var data2 = {
     // count: 0,
@@ -172,7 +176,7 @@ var data2 = {
         }
     }
 };
-var watch2 = Observable2.create(data1, {
+var watch2 = Observable.create(data1, {
     set: function (path, val) {
         console.log(path, val);
     }

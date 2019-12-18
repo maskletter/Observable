@@ -1,7 +1,7 @@
-namespace Observable2{
+namespace Observable{
 
-    const GlobalArray = window.Array
-    const GlobalObject = window.Object
+    const GlobalArray = (window as any).Array
+    const GlobalObject = (window as any).Object
     
     export const version: number = 0.01;
     export const libName: string = 'Observable'
@@ -122,7 +122,7 @@ namespace Observable2{
             }
         }
         forbidEnumerable(Object.prototype,'set', function(key: string, value: any){
-            data[key] = createNewWatch(data[key], key, __obs)
+            data[key] = createNewWatch(value, key, __obs)
             defineProperty(this, key)
         })
         forbidEnumerable(Object.prototype,'__obs', __obs);
@@ -171,7 +171,11 @@ const data1 = {
         "name3": "王五",
         "name4": "赵六"
     },
-    month: ['一',"二","三","四","五"]
+    month: ['一',"二","三","四","五", {
+        name: 'tom',
+        age: 14,
+        school: ['一中','二中']
+    },]
 }
 const data2=  {
     // count: 0,
@@ -199,7 +203,7 @@ const data2=  {
     //     }
     // ]
 }
-const watch2 = Observable2.create(data1, {
+const watch2 = Observable.create(data1, {
     set(path,val){
         console.log(path,val)
     }
