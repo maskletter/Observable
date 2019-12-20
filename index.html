@@ -10,6 +10,25 @@
     <h1>打开控制台查看</h1>
     一个数据监听功能，实现了数组的push，pop，unshift，shift等功能，及object对象的set添加功能
 <!-- <script>window.exports = {}</script> -->
-<script src='./clone-watch.js'></script>
+<script src='./Observable.js'></script>
+<script>
+    const data = {
+        name: "tom",
+        age: 14,
+        friend: {
+                "name1": "张三",
+                "name2": "李四",
+                "name3": "王五",
+                "name4": "赵六"
+        },
+        school: ["北京大学","河北大学","xx大学"]
+    }
+    const b = Observable.create(data,{
+        set(path,val){
+            console.log(Observable.formatPath(path),val)
+        }
+    })
+    console.log(b)
+</script>
 </body>
 </html>
