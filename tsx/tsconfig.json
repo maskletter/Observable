@@ -1,0 +1,11 @@
+
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "jsx": "react",
+        "jsxFactory": "h",
+        "rootDir":"./src",      
+        "outDir":"./dist",   
+        "watch": true
+    }
+}
