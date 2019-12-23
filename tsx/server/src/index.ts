@@ -28,6 +28,7 @@ namespace TsServer{
 
     watcher.on('ready', () => {
         console.log('文件读取完成，即将可以文件解析')
+        console.log(tool.getTsConfig())
         tsServer = new WatchServer(Array.from(files), tool.getTsConfig(), writeFile)
     })
 

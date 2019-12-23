@@ -59,12 +59,20 @@ class tool{
             es2015: 'ES2015',
             esnext: 'ESNext'
         }
+        const jsxModule: any = {
+            'react': ts.JsxEmit.React,
+            'react-native': ts.JsxEmit.ReactNative,
+            'preserve': ts.JsxEmit.Preserve
+        }
         try {
             const config: ts.CompilerOptions = JSON.parse(content).compilerOptions;
             if(config.target) config.target = <any>ts.ScriptTarget[(config.target as any).toLocaleUpperCase()];
             if(config.lib){
                 // config.lib = config.lib.map(v => path.join(tool.cwd,'node_modules/typescript/lib','lib.'+v+'.d.ts'))
                 config.lib = config.lib.map(v => 'lib.'+v+'.d.ts')
+            }
+            if(config.jsx){
+                config.jsx = jsxModule[config.jsx]
             }
             if(config.module){
                 const moduleName: string =config.module as any

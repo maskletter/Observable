@@ -13,7 +13,7 @@ class Br{
 const color: string = 'red'
 const n = <Div id="aaaaaaa" style={ {background:color} }></Div>
 
-class TestPage {
+export default class TestPage {
     private bool: boolean = false;
 
     private navigator: any = <A>xxxxxxx</A>
