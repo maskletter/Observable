@@ -3,6 +3,9 @@ node_modules
 tsx/package-lock.json
 tsx/dist
 tsx/server/dist
+rpp/node_modules
+rpp/package-lock.json
+rpp/server/package-lock.json
 
 # local env files
 .env.local

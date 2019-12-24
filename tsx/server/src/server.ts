@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 import tool from './tool';
+ts.createSourceFile('./test.js',`const name = "aaaaa";`, 1)
 
 class TsLanguageService implements ts.LanguageServiceHost{
 
@@ -18,6 +19,7 @@ class TsLanguageService implements ts.LanguageServiceHost{
         this.rootFileNames.add(fileName)
         this.files[fileName] = { version: 0 }
     }
+    
     public removeFile(fileName: string){
       this.rootFileNames.delete(fileName);
       delete this.files[fileName]
@@ -54,7 +56,6 @@ export default class TsServer{
     constructor(rootFileNames: string[], options: ts.CompilerOptions, writeFile?: Function){
       writeFile && (this.writeFile = writeFile);
         this.host = new TsLanguageService(rootFileNames, options);
-      
         this.services = ts.createLanguageService(
             this.host,
             ts.createDocumentRegistry()
