@@ -2,8 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 import tool from './tool';
-ts.createSourceFile('./test.js',`const name = "aaaaa";`, 1)
-// ts.sys.writeFile
+
 class TsLanguageService implements ts.LanguageServiceHost{
 
     constructor(rootFileNames: string[], options: ts.CompilerOptions){

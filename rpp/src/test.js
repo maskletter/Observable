@@ -7,7 +7,7 @@ const source = ts.createSourceFile('./test.js',`
     import aaa from "rxjs";
     const b = require("aa");
     function bb(){
-        const a = b;
+        const a = b("aaa");
     }
 `, 1)
 // console.log(source)
@@ -20,12 +20,14 @@ function visit(node) {
         console.log('使用了import')
         const { name, elements } = node.importClause.namedBindings||node.importClause;
         if(name){
-            console.log(name.escapedText)
+            console.log(name.escapedText, node.moduleSpecifier.text)
         }else{
-            console.log(elements.map(v => v.name.escapedText))
+            console.log(elements.map(v => v.name.escapedText), node.moduleSpecifier.text)
         }
     }else if(ts.isVariableStatement(node)){
-        console.log('使用了=')
+        const { expression, arguments } = node.declarationList.declarations[0].initializer;
+        if(!expression || !expression.escapedText || expression.escapedText != 'require') return
+        console.log('使用了=', expression.escapedText, arguments[0].text)
     }else if(ts.isFunctionDeclaration(node)){
         ts.forEachChild(node.body, visit);
     }
