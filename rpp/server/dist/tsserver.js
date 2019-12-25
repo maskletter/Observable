@@ -4,13 +4,16 @@ var fs = require("fs");
 var path = require("path");
 var ts = require("typescript");
 var tool_1 = require("./tool");
+exports.files = new Map();
 var TsLanguageService = /** @class */ (function () {
     function TsLanguageService(rootFileNames, options) {
         var _this = this;
         this.rootFileNames = new Set();
         this.files = {};
         this.fileExists = ts.sys.fileExists;
-        this.readFile = ts.sys.readFile;
+        this.readFile = function (path, en) {
+            return ts.sys.readFile(path, en);
+        };
         this.readDirectory = ts.sys.readDirectory;
         this.compilationSettings = options;
         rootFileNames.forEach(function (v) {
@@ -85,7 +88,7 @@ var TsServer = /** @class */ (function () {
             if (_this.writeFile)
                 _this.writeFile(o.name, o.text);
             else
-                fs.writeFileSync(o.name, o.text, "utf8");
+                ts.sys.writeFile(o.name, o.text);
         });
     };
     TsServer.prototype.error = function () {

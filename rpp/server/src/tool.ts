@@ -51,15 +51,17 @@ class tool{
      * 格式化import包的路径
      * @param _path 
      */
-    public static formatImportPath(_path: string): any {
+    public static getImportPath(_path: string): string|undefined {
         const url = path.join(tool.srcCwd,_path)
-        const url2 = path.join(url, 'index.ts')
         if(fs.existsSync(url)){
             if(fs.statSync(url).isDirectory()){
+                return path.join(tool.srcCwd,_path,'index.ts')
                 return path.join(_path,'index.ts')
             }
             return _path
-        }return undefined
+        }else if(fs.existsSync(url+'.ts')){
+            return path.join(tool.srcCwd,_path+'.ts')
+        }else return undefined
     }
 
     /**

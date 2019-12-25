@@ -36,16 +36,20 @@ var tool = /** @class */ (function () {
      * 格式化import包的路径
      * @param _path
      */
-    tool.formatImportPath = function (_path) {
+    tool.getImportPath = function (_path) {
         var url = path.join(tool.srcCwd, _path);
-        var url2 = path.join(url, 'index.ts');
         if (fs.existsSync(url)) {
             if (fs.statSync(url).isDirectory()) {
+                return path.join(tool.srcCwd, _path, 'index.ts');
                 return path.join(_path, 'index.ts');
             }
             return _path;
         }
-        return undefined;
+        else if (fs.existsSync(url + '.ts')) {
+            return path.join(tool.srcCwd, _path + '.ts');
+        }
+        else
+            return undefined;
     };
     /**
      * 获取tsconfig配置

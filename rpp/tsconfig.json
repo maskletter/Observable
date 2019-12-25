@@ -1,11 +1,44 @@
-
 {
+    "compileOnSave": false,
     "compilerOptions": {
-        "baseUrl": "src",
-        "jsx": "react",
-        "jsxFactory": "h",
-        "rootDir":"./src",      
-        "outDir":"./dist",   
-        "watch": true
-    }
+      "declaration": false,
+      "baseUrl": "src",
+      "sourceMap": false,
+      "noErrorTruncation": true,
+      "allowJs": true,
+      "moduleResolution": "node",
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "removeComments": true,
+      "strict": true,
+      "alwaysStrict": false,
+      "noEmitOnError": false,
+      "strictNullChecks": false,
+      "jsx": "react",
+      "jsxFactory": "h",
+      "noImplicitUseStrict": false,
+      "noImplicitAny": true, 
+      "allowSyntheticDefaultImports": false,
+      "strictPropertyInitialization": false,
+      "target": "es5",
+      "rootDir":"./src",      
+      "outDir":"./dist",     
+      "downlevelIteration": true,
+      "watch":true,             
+      "typeRoots": [
+        "node_modules/@types", "./types"
+      ],
+      "lib": [
+        "es2016",
+        "dom",
+        "es2018.promise"
+      ]
+    },
+    "include": [
+      "./src/**/*", "./types/*"
+    ],
+    "exclude": [
+      "./dist/**/*"
+    ]
   }
+  

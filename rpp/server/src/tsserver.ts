@@ -3,6 +3,8 @@ import * as path from 'path';
 import * as ts from 'typescript';
 import tool from './tool';
 
+export const files: Map<string,string> = new Map();
+
 class TsLanguageService implements ts.LanguageServiceHost{
 
     constructor(rootFileNames: string[], options: ts.CompilerOptions){
@@ -24,7 +26,10 @@ class TsLanguageService implements ts.LanguageServiceHost{
       delete this.files[fileName]
     }
     fileExists = ts.sys.fileExists
-    readFile = ts.sys.readFile
+    readFile = (path: string, en: any) => {
+      
+      return ts.sys.readFile(path,en)
+    }
     readDirectory = ts.sys.readDirectory
     public getCompilationSettings(){
         return this.compilationSettings
@@ -89,7 +94,7 @@ export default class TsServer{
         if(this.isCarryOut) this.error()
         output.outputFiles.forEach(o => {
             if(this.writeFile) this.writeFile(o.name, o.text)
-            else fs.writeFileSync(o.name, o.text, "utf8");
+            else ts.sys.writeFile(o.name, o.text);
         });
     }
 
