@@ -4,6 +4,11 @@ var fs = require("fs");
 var path = require("path");
 var ts = require("typescript");
 var tool_1 = require("./tool");
+var readFile = ts.sys.readFile;
+ts.sys.readFile = function (path, encoding) {
+    console.log(path);
+    return '';
+};
 exports.files = new Map();
 var TsLanguageService = /** @class */ (function () {
     function TsLanguageService(rootFileNames, options) {
@@ -11,9 +16,7 @@ var TsLanguageService = /** @class */ (function () {
         this.rootFileNames = new Set();
         this.files = {};
         this.fileExists = ts.sys.fileExists;
-        this.readFile = function (path, en) {
-            return ts.sys.readFile(path, en);
-        };
+        // readFile = ts.sys.readFile
         this.readDirectory = ts.sys.readDirectory;
         this.compilationSettings = options;
         rootFileNames.forEach(function (v) {
@@ -60,7 +63,16 @@ var TsServer = /** @class */ (function () {
         writeFile && (this.writeFile = writeFile);
         this.host = new TsLanguageService(rootFileNames, options);
         this.services = ts.createLanguageService(this.host, ts.createDocumentRegistry());
-        this.host.getScriptFileNames().forEach(function (v) { return _this.emitFile(v); });
+        this.host.getScriptFileNames().forEach(function (v) {
+            _this.emitFile(v);
+            fs.watchFile(v, { persistent: true, interval: 250 }, function (curr, prev) {
+                if (+curr.mtime <= +prev.mtime) {
+                    return;
+                }
+                console.log('文件变化了', v);
+                _this.emitFile(v);
+            });
+        });
         this.isCarryOut = true;
         this.error();
     }

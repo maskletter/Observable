@@ -2,6 +2,7 @@ import * as ts from 'typescript';
 import * as chokidar from 'chokidar'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as crypto from 'crypto'
 import tool from './tool';
 import TsServer, { files as serverFiles } from './tsserver'
 
@@ -24,7 +25,6 @@ namespace RppServer{
         // console.log(node)
 
         if(ts.isImportDeclaration(node)){
-            // console.log('使用了import')
             // const { name, elements }: any = node.importClause.namedBindings||node.importClause;
             foramtImportPath((node.moduleSpecifier as any).text, set)
             // console.log(tool.getImportPath((node.moduleSpecifier as any).text))
@@ -59,9 +59,9 @@ namespace RppServer{
     }
 
     const parseImportRelation = (path: string) => {
-        const content = fs.readFileSync(path).toString();
+        const content = fs.readFileSync(path);
         serverFiles.set(path, content)
-        return getFileImport(path, content)
+        return getFileImport(path, content.toString())
     }
 
     const readFilesRelationship = (path: string, set: Set<string>) => {
@@ -85,8 +85,11 @@ namespace RppServer{
         css: /^(\s|\S)+(css|scss)+$/,
         img: /^(\s|\S)+(gif|jpg|jpeg|png|webp)+$/,
     }
+    const watchFileContent: Map<string, string> = new Map();
     /**文件变化监听器 */
-    const watcher = chokidar.watch([]);
+    const watcher = chokidar.watch([], {
+        persistent: true
+    });
     /**存储.d.ts文件 */
     const allTypeDts: Set<string> = new Set();
     /**存储所有解析到的ts文件 */
@@ -99,22 +102,30 @@ namespace RppServer{
    
     readFilesRelationship(rootFile, files)
    
-    new TsServer(Array.from(files).concat(Array.from(allTypeDts)), tool.getTsConfig(), writeFile)
-    watcher.on('add', (path, stats) => {
-        
-    })
+    const tsServer = new TsServer(Array.from(files).concat(Array.from(allTypeDts)), tool.getTsConfig(), writeFile)
+    watcher.add(Array.from(files))
+   
     watcher.on('change', (path, stats) => {
-        const set: Set<string> = new Set()
-        console.log(`监听了${path}`)
-        parseImportRelation(path).forEach(v => {
-            if(files.has(v.value) || GlobalModules.has(v.value)) return
-            if(v.type == 'modules') return GlobalModules.add(v.value)
-            if(fileType.ts.test(v.value)) {
-                readFilesRelationship(v.value, set)
-                set.add(v.value)
-            }
-        })
-        watcher.add(Array.from(set))
+        console.log(path)
+        // const md5 = fs.readFileSync(path).toString();
+        // const oldMd5 = watchFileContent.get(path)
+        // if(oldMd5 == md5) return
+        // watchFileContent.set(path,md5)
+        // const set: Set<string> = new Set()
+        // console.log(`监听了${path}`)
+        // parseImportRelation(path).forEach(v => {
+        //     if(files.has(v.value) || GlobalModules.has(v.value)) return
+        //     if(v.type == 'modules') return GlobalModules.add(v.value)
+        //     if(fileType.ts.test(v.value)) {
+        //         readFilesRelationship(v.value, set)
+        //         set.add(v.value)
+        //     }
+        // })
+        // if(set.size){
+        //     tsServer.addFile(Array.from(set))
+        //     watcher.add(Array.from(set))
+        // }
+        // tsServer.emitFile(path)
     })
  
 

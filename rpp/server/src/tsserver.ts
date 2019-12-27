@@ -2,8 +2,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 import tool from './tool';
-
-export const files: Map<string,string> = new Map();
+const readFile = ts.sys.readFile
+ts.sys.readFile = (path: string, encoding?: string): string => {
+  console.log(path)
+  return '';
+}
+export const files: Map<string,Buffer> = new Map();
 
 class TsLanguageService implements ts.LanguageServiceHost{
 
@@ -26,10 +30,7 @@ class TsLanguageService implements ts.LanguageServiceHost{
       delete this.files[fileName]
     }
     fileExists = ts.sys.fileExists
-    readFile = (path: string, en: any) => {
-      
-      return ts.sys.readFile(path,en)
-    }
+    // readFile = ts.sys.readFile
     readDirectory = ts.sys.readDirectory
     public getCompilationSettings(){
         return this.compilationSettings
@@ -58,13 +59,22 @@ class TsLanguageService implements ts.LanguageServiceHost{
 export default class TsServer{
 
     constructor(rootFileNames: string[], options: ts.CompilerOptions, writeFile?: Function){
-      writeFile && (this.writeFile = writeFile);
+        writeFile && (this.writeFile = writeFile);
         this.host = new TsLanguageService(rootFileNames, options);
         this.services = ts.createLanguageService(
             this.host,
             ts.createDocumentRegistry()
           )
-        this.host.getScriptFileNames().forEach(v => this.emitFile(v))
+        this.host.getScriptFileNames().forEach(v => {
+          this.emitFile(v)
+          fs.watchFile(v, { persistent: true, interval: 250 }, (curr, prev) => {
+            if (+curr.mtime <= +prev.mtime) {
+              return;
+            }
+            console.log('文件变化了', v)
+            this.emitFile(v);
+          });
+        })
         this.isCarryOut = true;
         this.error()
     }

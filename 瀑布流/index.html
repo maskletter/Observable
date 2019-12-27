@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{ margin: 0px;padding: 0px; }
+    </style>
+    <script src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
+</head>
+<body>
+    <div style="text-align: center;">
+        <h1>瀑布流</h1>
+    </div>
+    <div id="app">
+
+    </div>
+<script>
+const data = [
+    { text: '菜菜', image: "http://172.24.10.136:8080/_20190718095242.png" },
+    { text: '菜菜菜菜菜菜菜菜菜菜', image: "http://172.24.10.136:8080/3521435.jpg" },
+    { text: '菜菜菜菜菜菜菜菜', image: "http://172.24.10.136:8080/596+dfsdfsdf.jpg" },
+    { text: '菜菜菜菜菜菜', image: "http://172.24.10.136:8080/6463446dg.jpg" },
+    { text: '菜菜菜菜菜菜', image: "http://172.24.10.136:8080/54645461fdggf.jpg" },
+    { text: '菜菜', image: "http://172.24.10.136:8080/64546456.jpg" },
+    { text: '菜菜菜菜菜菜菜菜', image: "http://172.24.10.136:8080/545324234.jpg" },
+    { text: '菜菜', image: "http://172.24.10.136:8080/ad6s4dg6fg4.jpg" },
+    { text: '菜菜', image: "http://172.24.10.136:8080/c1sd56f4dsf.jpg" },
+    { text: '菜菜菜菜菜菜菜菜菜菜菜菜', image: "http://172.24.10.136:8080/c6sdf87sd.jpg" },
+    { text: '菜菜', image: "http://172.24.10.136:8080/fsef456f4dg.jpg" },
+    { text: '菜菜菜菜菜菜菜菜菜菜菜菜', image: "http://172.24.10.136:8080/g4jgh4jj.jpg" },
+    { text: '菜菜', image: "http://172.24.10.136:8080/8567456456.jpg" },
+]
+const vue = new Vue({
+    el: '#app',
+    data: {
+        data
+    }
+})
+</script>
+</body>
+</html>

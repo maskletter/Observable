@@ -26,7 +26,6 @@ var RppServer;
     var visit = function (node, set) {
         // console.log(node)
         if (ts.isImportDeclaration(node)) {
-            // console.log('使用了import')
             // const { name, elements }: any = node.importClause.namedBindings||node.importClause;
             foramtImportPath(node.moduleSpecifier.text, set);
             // console.log(tool.getImportPath((node.moduleSpecifier as any).text))
@@ -63,9 +62,9 @@ var RppServer;
         });
     };
     var parseImportRelation = function (path) {
-        var content = fs.readFileSync(path).toString();
+        var content = fs.readFileSync(path);
         tsserver_1.files.set(path, content);
-        return getFileImport(path, content);
+        return getFileImport(path, content.toString());
     };
     var readFilesRelationship = function (path, set) {
         set.add(path);
@@ -86,8 +85,11 @@ var RppServer;
         css: /^(\s|\S)+(css|scss)+$/,
         img: /^(\s|\S)+(gif|jpg|jpeg|png|webp)+$/
     };
+    var watchFileContent = new Map();
     /**文件变化监听器 */
-    var watcher = chokidar.watch([]);
+    var watcher = chokidar.watch([], {
+        persistent: true
+    });
     /**存储.d.ts文件 */
     var allTypeDts = new Set();
     /**存储所有解析到的ts文件 */
@@ -98,23 +100,29 @@ var RppServer;
     };
     findDts(tool_1["default"].srcCwd, allTypeDts);
     readFilesRelationship(rootFile, files);
-    new tsserver_1["default"](Array.from(files).concat(Array.from(allTypeDts)), tool_1["default"].getTsConfig(), writeFile);
-    watcher.on('add', function (path, stats) {
-    });
+    var tsServer = new tsserver_1["default"](Array.from(files).concat(Array.from(allTypeDts)), tool_1["default"].getTsConfig(), writeFile);
+    watcher.add(Array.from(files));
     watcher.on('change', function (path, stats) {
-        var set = new Set();
-        console.log("\u76D1\u542C\u4E86" + path);
-        parseImportRelation(path).forEach(function (v) {
-            if (files.has(v.value) || GlobalModules.has(v.value))
-                return;
-            if (v.type == 'modules')
-                return GlobalModules.add(v.value);
-            if (fileType.ts.test(v.value)) {
-                readFilesRelationship(v.value, set);
-                set.add(v.value);
-            }
-        });
-        watcher.add(Array.from(set));
+        console.log(path);
+        // const md5 = fs.readFileSync(path).toString();
+        // const oldMd5 = watchFileContent.get(path)
+        // if(oldMd5 == md5) return
+        // watchFileContent.set(path,md5)
+        // const set: Set<string> = new Set()
+        // console.log(`监听了${path}`)
+        // parseImportRelation(path).forEach(v => {
+        //     if(files.has(v.value) || GlobalModules.has(v.value)) return
+        //     if(v.type == 'modules') return GlobalModules.add(v.value)
+        //     if(fileType.ts.test(v.value)) {
+        //         readFilesRelationship(v.value, set)
+        //         set.add(v.value)
+        //     }
+        // })
+        // if(set.size){
+        //     tsServer.addFile(Array.from(set))
+        //     watcher.add(Array.from(set))
+        // }
+        // tsServer.emitFile(path)
     });
     function writeFile(fileName, content, writeByteOrderMark) {
         console.log('输入', fileName);

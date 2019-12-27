@@ -41,12 +41,14 @@ var tool = /** @class */ (function () {
         if (fs.existsSync(url)) {
             if (fs.statSync(url).isDirectory()) {
                 return path.join(tool.srcCwd, _path, 'index.ts');
-                return path.join(_path, 'index.ts');
             }
             return _path;
         }
         else if (fs.existsSync(url + '.ts')) {
             return path.join(tool.srcCwd, _path + '.ts');
+        }
+        else if (fs.existsSync(url + '.tsx')) {
+            return path.join(tool.srcCwd, _path + '.tsx');
         }
         else
             return undefined;
