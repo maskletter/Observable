@@ -8,7 +8,7 @@ export default class Button {
         return <View id='xx'>
             <Text>xxxxxxxxx</Text>
             <Text>22</Text>
-            <Image src="aafa" />
+            <Image src="aafa11f122ff方法21" />
         </View>
     }
 

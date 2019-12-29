@@ -38,11 +38,19 @@ var tool = /** @class */ (function () {
      */
     tool.getImportPath = function (_path) {
         var url = path.join(tool.srcCwd, _path);
+        // console.log(url)
+        // if(fs.existsSync(url)){
+        //     if(fs.statSync(url).isDirectory()){
+        //         return path.join(tool.srcCwd,_path,'index.ts')
+        //     }
+        //     return _path
+        // }
+        // return _path
         if (fs.existsSync(url)) {
             if (fs.statSync(url).isDirectory()) {
                 return path.join(tool.srcCwd, _path, 'index.ts');
             }
-            return _path;
+            return url;
         }
         else if (fs.existsSync(url + '.ts')) {
             return path.join(tool.srcCwd, _path + '.ts');

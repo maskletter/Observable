@@ -22,7 +22,7 @@ var Button = (function () {
         return h(View, { id: 'xx' },
             h(Text, null, "xxxxxxxxx"),
             h(Text, null, "22"),
-            h(Image, { src: "aafa" }));
+            h(Image, { src: "aafa11f122ff\u65B9\u6CD521" }));
     };
     return Button;
 }());

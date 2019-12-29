@@ -2,11 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 import tool from './tool';
-const readFile = ts.sys.readFile
-ts.sys.readFile = (path: string, encoding?: string): string => {
-  console.log(path)
-  return '';
-}
+
 export const files: Map<string,Buffer> = new Map();
 
 class TsLanguageService implements ts.LanguageServiceHost{
@@ -67,13 +63,13 @@ export default class TsServer{
           )
         this.host.getScriptFileNames().forEach(v => {
           this.emitFile(v)
-          fs.watchFile(v, { persistent: true, interval: 250 }, (curr, prev) => {
-            if (+curr.mtime <= +prev.mtime) {
-              return;
-            }
-            console.log('文件变化了', v)
-            this.emitFile(v);
-          });
+          // fs.watchFile(v, { persistent: true, interval: 250 }, (curr, prev) => {
+          //   if (+curr.mtime <= +prev.mtime) {
+          //     return;
+          //   }
+          //   console.log('文件变化了', v)
+          //   this.emitFile(v);
+          // });
         })
         this.isCarryOut = true;
         this.error()
