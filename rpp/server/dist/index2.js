@@ -5,6 +5,7 @@ var path = require("path");
 var fs = require("fs");
 var tool_1 = require("./tool");
 var tsserver_1 = require("./tsserver");
+var ast_1 = require("./ast");
 var RppServer;
 (function (RppServer) {
     var getFileImport = function (fileName, content) {
@@ -59,7 +60,11 @@ var RppServer;
     var readFilesRelationship = function (path, call) {
         // set.add(path)
         call(path, true);
-        parseImportRelation(path).forEach(function (v) {
+        var rely = parseImportRelation(path);
+        if (rely.size) {
+            genealogy.set(path.replace(tool_1["default"].srcCwd, ''), rely);
+        }
+        rely.forEach(function (v) {
             if (v.type == 'modules')
                 return GlobalModules.add(v.value);
             var tsfile = fileType.ts.test(v.value);
@@ -71,8 +76,12 @@ var RppServer;
     };
     var GlobalModules = new Set();
     var rootFile = path.join(tool_1["default"].srcCwd, 'app.ts');
+    /**关系族谱 */
+    var genealogy = new Map();
     /**存储所有解析到的ts文件 */
     var files = new Set();
+    /**文件编译之后的代码 */
+    var compileFileContent = new Map();
     var fileType = {
         ts: /^(\s|\S)+(ts|tsx)+$/,
         css: /^(\s|\S)+(css|scss)+$/,
@@ -112,7 +121,15 @@ var RppServer;
     createProcess(rootFile, files);
     var tsServer = new tsserver_1["default"](Array.from(files), tool_1["default"].getTsConfig(), writeFile);
     function writeFile(fileName, content, writeByteOrderMark) {
-        console.log('输入', fileName);
-        ts.sys.writeFile(fileName, content, writeByteOrderMark);
+        var format = path.normalize(fileName).replace(/(.+?)\.js$/, '$1.ts').replace('dist', '');
+        var rely = genealogy.get(format) || [];
+        compileFileContent.set(format, content);
+        build(fileName, format, content);
+    }
+    function build(fileName, srcFileName, content) {
+        console.time();
+        // console.log(fileName)
+        new ast_1["default"](fileName, content);
+        console.timeEnd();
     }
 })(RppServer || (RppServer = {}));

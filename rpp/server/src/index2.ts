@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import tool from './tool';
 import TsServer from './tsserver'
+import Ast from './ast'
 
 namespace RppServer {
     const getFileImport = (fileName: string, content: string) => {
@@ -54,7 +55,11 @@ namespace RppServer {
     const readFilesRelationship = (path: string, call:(path: string, tsfile: boolean) => void) => {
         // set.add(path)
         call(path, true)
-        parseImportRelation(path).forEach(v => {
+        const rely = parseImportRelation(path);
+        if(rely.size){
+            genealogy.set(path.replace(tool.srcCwd,''),rely)
+        }
+        rely.forEach(v => {
             if(v.type == 'modules') return GlobalModules.add(v.value)
             const tsfile = fileType.ts.test(v.value);
             if(tsfile) {
@@ -66,8 +71,12 @@ namespace RppServer {
 
     const GlobalModules: Set<string> = new Set();
     const rootFile: string = path.join(tool.srcCwd,'app.ts');
+    /**关系族谱 */
+    const genealogy: Map<string,any> = new Map();
     /**存储所有解析到的ts文件 */
     const files: Set<string> = new Set();
+    /**文件编译之后的代码 */
+    const compileFileContent: Map<string,string> = new Map();
     const fileType = {
         ts: /^(\s|\S)+(ts|tsx)+$/,
         css: /^(\s|\S)+(css|scss)+$/,
@@ -113,8 +122,17 @@ namespace RppServer {
 
 
     function writeFile(fileName: string, content: string, writeByteOrderMark: boolean){
-        console.log('输入',fileName)
-        ts.sys.writeFile(fileName, content, writeByteOrderMark);
+        const format = path.normalize(fileName).replace(/(.+?)\.js$/,'$1.ts').replace('dist','')
+        const rely = genealogy.get(format) || [];
+        compileFileContent.set(format, content)
+        build(fileName, format, content)
+    }
+
+    function build(fileName: string, srcFileName: string, content: string){
+        console.time()
+        // console.log(fileName)
+        new Ast(fileName, content)
+        console.timeEnd()
     }
 
 }
