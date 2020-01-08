@@ -8,7 +8,7 @@
     <script src="./vue.js"></script>
     <style>
         .test-animation-1-enter-active{
-            transition: 0.3s linear opacity, 0.6s linear transform;
+            transition: 0.3s linear opacity, 0.3s linear transform;
             transform: translate(0px, 0);
             opacity: 1;
         }
@@ -17,7 +17,7 @@
             transform: translate(100px, 0px);
         }
         .test-animation-1-leave-active{
-            transition: 0.3s linear opacity, 0.6s linear transform;
+            transition: 0.3s linear opacity, 0.3s linear transform;
             transform: translate(100px, 0);
             opacity: 0;
         }
@@ -34,11 +34,12 @@
 <body>
     <div id="app">
         <button @click='toggle'>显示h1</button>
-        <animation name='test-animation-1' :show='show'>
+        <animation name='test-animation-1' @change="changeAnimation" :show='show'>
             <h1>xxxxxxxxxxx</h1>
         </animation>
-        <keep-alive2 :show='show'>
+        <keep-alive2 :show='show' name='test-animation-1' label='animation'>
             <h1>22222222222</h1>
+            <input value="222" />
         </keep-alive2>
         <transition name='test-animation-1'>
             <h1 v-show='show'>{{ name }}</h1>
@@ -113,7 +114,10 @@ Vue.component('animation', Vue.extend({
             this.length--;
             if(this.length != 0) return
             if(this.animationClass ==  `${this.name}-leave-active ${this.name}-leave-to`){
+                this.$emit('change', 'hide')
                 this.status = false;
+            }else{
+                this.$emit('change', 'show')
             }
             this.animationClass = ''
         },
@@ -128,14 +132,20 @@ Vue.component('animation', Vue.extend({
 Vue.component('keep-alive2', {
     template: `
         <component 
-            :is='label' 
-            ref='$div' >
+            :is='label'
+            :show='show'
+            :name='name'
+            ref='$div' 
+            @change='animationChange'>
             <slot></slot>
         </component>`,
     props: {
         show: {
             type: Boolean,
             default: true
+        },
+        name: {
+            type: String
         },
         label: {
             type: String,
@@ -145,20 +155,29 @@ Vue.component('keep-alive2', {
     },
     watch: {
         show(val){
-            if(!this.show){
+            if(!this.show && this.label != 'animation'){
                 this.$div.appendChild(this.$el)
-            }else{
-                this.$_parent.appendChild(this.$el)
+            }else {
+                this.$_parent.insertBefore(this.$el, this.$comment)
             }
         }
     },
     mounted() {
+        this.$comment = document.createComment('keep-alive2')
         this.$div = document.createElement('div')
         this.$_parent = this.$el.parentNode;
+        this.$_parent.insertBefore(this.$comment, this.$el)
         if(!this.show){
             this.$div.appendChild(this.$el)
         }
     },
+    methods: {
+        animationChange(e){
+            if(this.label == 'animation' && e == 'hide'){
+                this.$div.appendChild(this.$el)
+            }
+        }
+    }
 })
 new Vue({
     el: '#app',
@@ -171,6 +190,9 @@ new Vue({
     methods: {
         toggle(){
             this.show = !this.show
+        },
+        changeAnimation(e){
+            console.log(e)
         }
     },
 })
