@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./vue.js"></script>
+    <style>
+        .test-animation-1-enter-active{
+            transition: 0.3s linear opacity, 0.6s linear transform;
+            transform: translate(0px, 0);
+            opacity: 1;
+        }
+        .test-animation-1-enter{
+            opacity: 0;
+            transform: translate(100px, 0px);
+        }
+        .test-animation-1-leave-active{
+            transition: 0.3s linear opacity, 0.6s linear transform;
+            transform: translate(100px, 0);
+            opacity: 0;
+        }
+        .test-animation-1-leave{
+            opacity: 1;
+            transform: translate(0px, 0px);
+        }
+    </style>
+    <style>
+        .animation-container.none{ display: none  }
+        .animation-container.block{ display: block  }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <button @click='toggle'>显示h1</button>
+        <animation name='test-animation-1' :show='show'>
+            <h1>xxxxxxxxxxx</h1>
+        </animation>
+        <keep-alive2 :show='show'>
+            <h1>22222222222</h1>
+        </keep-alive2>
+        <transition name='test-animation-1'>
+            <h1 v-show='show'>{{ name }}</h1>
+        </transition>
+        <!-- aa -->
+    </div>
+<script>
+
+Vue.component('animation', Vue.extend({
+
+    template: `
+        <component 
+            :is='label' 
+            ref='$div' 
+            @transitionstart='transitionstart' 
+            @transitionend='transitionend' 
+            :class="[animationClass]"
+            :style="{display:status?'block':'none'}">
+            <slot></slot>
+        </component>`,
+
+    props:{
+        show: {
+            type: Boolean,
+            default: true
+        },
+        name: {
+            // 动画
+            type: String
+        },
+        label: {
+            type: String,
+            // 渲染成什么标签
+            default: 'div'
+        }
+    },
+
+    data(){
+        return {
+            status: false,
+            animationClass: '',
+            length: 0
+        }
+    },
+
+    watch: {
+        show(value){
+            this.length = 0
+            if(value){
+                this.showAction()
+            }else{
+                this.hideAction()
+            }
+        }
+    },
+
+    methods: {
+        showAction(){
+            this.status = true;
+            this.$nextTick(() => {
+                this.animationClass = `${this.name}-enter`
+                setTimeout(() => this.animationClass = `${this.name}-enter-active ${this.name}-enter-to`)
+            })
+        },
+        hideAction(){
+            this.$nextTick(() => {
+                this.animationClass += `${this.name}-leave`
+                setTimeout(() => this.animationClass = `${this.name}-leave-active ${this.name}-leave-to`)
+            })
+        },
+        transitionend(e){
+            this.length--;
+            if(this.length != 0) return
+            if(this.animationClass ==  `${this.name}-leave-active ${this.name}-leave-to`){
+                this.status = false;
+            }
+            this.animationClass = ''
+        },
+        transitionstart(){
+            this.length++;
+        }
+    }
+
+
+}))
+
+Vue.component('keep-alive2', {
+    template: `
+        <component 
+            :is='label' 
+            ref='$div' >
+            <slot></slot>
+        </component>`,
+    props: {
+        show: {
+            type: Boolean,
+            default: true
+        },
+        label: {
+            type: String,
+            // 渲染成什么标签
+            default: 'div'
+        }
+    },
+    watch: {
+        show(val){
+            if(!this.show){
+                this.$div.appendChild(this.$el)
+            }else{
+                this.$_parent.appendChild(this.$el)
+            }
+        }
+    },
+    mounted() {
+        this.$div = document.createElement('div')
+        this.$_parent = this.$el.parentNode;
+        if(!this.show){
+            this.$div.appendChild(this.$el)
+        }
+    },
+})
+new Vue({
+    el: '#app',
+    data(){
+        return {
+            name: 'tom',
+            show: false
+        }
+    },
+    methods: {
+        toggle(){
+            this.show = !this.show
+        }
+    },
+})
+
+</script>
+</body>
+</html>
